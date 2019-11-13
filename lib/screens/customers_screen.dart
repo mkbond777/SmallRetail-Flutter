@@ -48,7 +48,9 @@ class BodyLayout extends StatelessWidget {
       itemCount: customers.customers.length,
       itemBuilder: (context, index) {
         return ListTile(
-          title: Text((customers.customers[index]).id),
+          title: Text(
+              "${(customers.customers[index]).firstName} ${(customers.customers[index]).lastName}"),
+          subtitle: Text("${(customers.customers[index]).phoneNumber}"),
         );
       },
     );
