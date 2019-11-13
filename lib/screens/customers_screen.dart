@@ -1,5 +1,6 @@
 import 'package:clima/model/customer_list.dart';
 import 'package:flutter/material.dart';
+import 'package:clima/screens/customer_add.dart';
 
 class CustomersScreen extends StatefulWidget {
   CustomersScreen({this.customers});
@@ -29,6 +30,17 @@ class _CustomersScreenState extends State<CustomersScreen> {
       ),
       home: Scaffold(
         appBar: AppBar(title: Text('Customers')),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context) {
+              return CustomerAdd();
+            }));
+          },
+          child: Icon(
+            Icons.add,
+          ),
+          mini: true,
+        ),
         body: BodyLayout(
           customers: widget.customers,
         ),
