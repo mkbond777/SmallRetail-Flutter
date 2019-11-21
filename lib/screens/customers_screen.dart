@@ -1,6 +1,7 @@
 import 'package:clima/model/customer_list.dart';
 import 'package:flutter/material.dart';
 import 'package:clima/screens/customer_add.dart';
+import 'package:clima/screens/customer_detail_screen.dart';
 
 class CustomersScreen extends StatefulWidget {
   CustomersScreen({this.customers});
@@ -63,6 +64,11 @@ class BodyLayout extends StatelessWidget {
           title: Text(
               "${(customers.customers[index]).firstName} ${(customers.customers[index]).lastName}"),
           subtitle: Text("${(customers.customers[index]).phoneNumber}"),
+          onTap: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context) {
+              return CustomerDetails(customer: customers.customers[index]);
+            }));
+          },
         );
       },
     );

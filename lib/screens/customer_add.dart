@@ -71,7 +71,7 @@ class _CustomerAddState extends State<CustomerAdd> {
                                     final form = _formKey.currentState;
                                     if (form.validate()) {
                                       form.save();
-                                      _customer.save();
+                                      _customer.save(_customer.toMap());
                                       _showDialog(context);
                                     }
                                   },
