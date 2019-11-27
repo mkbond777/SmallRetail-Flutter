@@ -28,6 +28,8 @@ class NetworkHelper {
 
     http.Response response = await http.post(url, headers: headers, body: body);
 
+    print(response.body);
+
     if (response.statusCode == 201) {
       print("Customer creared");
     } else {
