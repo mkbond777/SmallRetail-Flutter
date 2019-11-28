@@ -1,7 +1,9 @@
-import 'package:flutter/material.dart';
+import 'package:clima/model/bill_list.dart';
 import 'package:clima/model/customer_list.dart';
+import 'package:clima/screens/bills_screen.dart';
+import 'package:clima/screens/loading_screen.dart';
 import 'package:clima/services/networking.dart';
-import 'package:clima/screens/customers_screen.dart';
+import 'package:flutter/material.dart';
 
 class CustomerDetails extends StatefulWidget {
   CustomerDetails({this.customer});
@@ -13,9 +15,6 @@ class CustomerDetails extends StatefulWidget {
 }
 
 class _CustomerDetailsState extends State<CustomerDetails> {
-  NetworkHelper networkHelper =
-      NetworkHelper('https://smallretail.herokuapp.com/api/v1/customer');
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -67,7 +66,17 @@ class _CustomerDetailsState extends State<CustomerDetails> {
             ButtonTheme(
               minWidth: 250.0,
               child: RaisedButton(
-                onPressed: () {},
+                onPressed: () async {
+                  NetworkHelper networkHelper = NetworkHelper(
+                      'https://smallretail.herokuapp.com/api/v1/bill');
+                  BillList billList = new BillList.fromJson(
+                      await networkHelper.getDataById(widget.customer.id));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    return BillsScreen(
+                      billList: billList,
+                    );
+                  }));
+                },
                 textColor: Colors.white,
                 color: Colors.teal,
                 child: Text("Bills"),
@@ -86,17 +95,15 @@ class _CustomerDetailsState extends State<CustomerDetails> {
               minWidth: 250.0,
               child: RaisedButton(
                 onPressed: () async {
+                  NetworkHelper networkHelper = NetworkHelper(
+                      'https://smallretail.herokuapp.com/api/v1/customer');
+
                   bool isCustomerDeleted =
                       await networkHelper.deleteData(widget.customer.id);
                   if (isCustomerDeleted) {
-                    CustomerList customerList = new CustomerList.fromJson(
-                        await networkHelper.getData());
-
                     Navigator.push(context,
                         MaterialPageRoute(builder: (context) {
-                      return CustomersScreen(
-                        customersList: customerList,
-                      );
+                      return LoadingScreen();
                     }));
                   } else
                     _showDialog(context);

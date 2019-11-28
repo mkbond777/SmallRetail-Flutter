@@ -1,8 +1,6 @@
-import 'dart:convert' as prefix0;
-
-import 'package:clima/model/customer.dart';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
+
+import 'package:http/http.dart' as http;
 
 class NetworkHelper {
   NetworkHelper(this.url);
@@ -11,6 +9,20 @@ class NetworkHelper {
 
   Future getData() async {
     http.Response response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      String data = response.body;
+
+      return jsonDecode(data);
+    } else {
+      print(response.statusCode);
+    }
+  }
+
+  Future getDataById(String id) async {
+    String getUrl = "$url/$id";
+
+    http.Response response = await http.get(getUrl);
 
     if (response.statusCode == 200) {
       String data = response.body;
