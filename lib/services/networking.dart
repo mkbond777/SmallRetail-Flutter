@@ -36,4 +36,17 @@ class NetworkHelper {
       print(response.statusCode);
     }
   }
+
+  Future deleteData(String id) async {
+    String deleteUrl = "$url/$id";
+
+    http.Response response = await http.delete(deleteUrl);
+
+    print(response.body);
+
+    if (response.statusCode == 204)
+      return true;
+    else
+      return false;
+  }
 }

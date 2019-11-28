@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:clima/model/customer_list.dart';
+import 'package:clima/services/networking.dart';
+import 'package:clima/screens/customers_screen.dart';
 
 class CustomerDetails extends StatefulWidget {
   CustomerDetails({this.customer});
@@ -11,6 +13,9 @@ class CustomerDetails extends StatefulWidget {
 }
 
 class _CustomerDetailsState extends State<CustomerDetails> {
+  NetworkHelper networkHelper =
+      NetworkHelper('https://smallretail.herokuapp.com/api/v1/customer');
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -80,7 +85,22 @@ class _CustomerDetailsState extends State<CustomerDetails> {
             ButtonTheme(
               minWidth: 250.0,
               child: RaisedButton(
-                onPressed: () {},
+                onPressed: () async {
+                  bool isCustomerDeleted =
+                      await networkHelper.deleteData(widget.customer.id);
+                  if (isCustomerDeleted) {
+                    CustomerList customerList = new CustomerList.fromJson(
+                        await networkHelper.getData());
+
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) {
+                      return CustomersScreen(
+                        customersList: customerList,
+                      );
+                    }));
+                  } else
+                    _showDialog(context);
+                },
                 textColor: Colors.white,
                 color: Colors.teal,
                 child: Text("Delete"),
@@ -88,5 +108,10 @@ class _CustomerDetailsState extends State<CustomerDetails> {
             ),
           ],
         ));
+  }
+
+  _showDialog(BuildContext context) {
+    Scaffold.of(context)
+        .showSnackBar(SnackBar(content: Text('Unable to delete customer')));
   }
 }
