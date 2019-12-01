@@ -1,5 +1,3 @@
-
-
 class BillList {
   final List<Bill> bills;
 

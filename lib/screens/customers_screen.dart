@@ -1,7 +1,7 @@
 import 'package:clima/model/customer_list.dart';
-import 'package:flutter/material.dart';
 import 'package:clima/screens/customer_add.dart';
 import 'package:clima/screens/customer_detail_screen.dart';
+import 'package:flutter/material.dart';
 
 class CustomersScreen extends StatefulWidget {
   CustomersScreen({this.customersList});
@@ -80,7 +80,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
                     controller: editingController,
                     decoration: InputDecoration(
                         labelText: "Search",
-                        hintText: "Search",
+                        hintText: "Customer First Name",
                         prefixIcon: Icon(Icons.search),
                         border: OutlineInputBorder(
                             borderRadius:

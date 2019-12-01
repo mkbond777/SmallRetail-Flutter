@@ -1,7 +1,9 @@
 import 'package:clima/model/bill_list.dart';
 import 'package:clima/model/customer_list.dart';
+import 'package:clima/model/product_list.dart';
 import 'package:clima/screens/bills_screen.dart';
 import 'package:clima/screens/loading_screen.dart';
+import 'package:clima/screens/products_screen.dart';
 import 'package:clima/services/networking.dart';
 import 'package:flutter/material.dart';
 
@@ -47,7 +49,19 @@ class _CustomerDetailsState extends State<CustomerDetails> {
             ButtonTheme(
               minWidth: 250.0,
               child: RaisedButton(
-                onPressed: () {},
+                onPressed: () async {
+                  NetworkHelper networkHelper = NetworkHelper(
+                      'https://smallretail.herokuapp.com/api/v1/product');
+
+                  ProductList productList =
+                      new ProductList.fromJson(await networkHelper.getData());
+
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    return ProductsScreen(
+                      productsList: productList,
+                    );
+                  }));
+                },
                 textColor: Colors.white,
                 color: Colors.teal,
                 child: Text("Create Order"),
@@ -94,19 +108,8 @@ class _CustomerDetailsState extends State<CustomerDetails> {
             ButtonTheme(
               minWidth: 250.0,
               child: RaisedButton(
-                onPressed: () async {
-                  NetworkHelper networkHelper = NetworkHelper(
-                      'https://smallretail.herokuapp.com/api/v1/customer');
-
-                  bool isCustomerDeleted =
-                      await networkHelper.deleteData(widget.customer.id);
-                  if (isCustomerDeleted) {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) {
-                      return LoadingScreen();
-                    }));
-                  } else
-                    _showDialog(context);
+                onPressed: () {
+                  _showDialog();
                 },
                 textColor: Colors.white,
                 color: Colors.teal,
@@ -117,8 +120,42 @@ class _CustomerDetailsState extends State<CustomerDetails> {
         ));
   }
 
-  _showDialog(BuildContext context) {
-    Scaffold.of(context)
-        .showSnackBar(SnackBar(content: Text('Unable to delete customer')));
+  void _showDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text("Delete"),
+          content: new Text("Are ypu sure want to delete?"),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            new FlatButton(
+              child: new Text("No"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            FlatButton(
+              child: new Text("Yes"),
+              onPressed: () async {
+                NetworkHelper networkHelper = NetworkHelper(
+                    'https://smallretail.herokuapp.com/api/v1/customer');
+
+                bool isCustomerDeleted =
+                    await networkHelper.deleteData(widget.customer.id);
+
+                if (isCustomerDeleted) {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    return LoadingScreen();
+                  }));
+                } else
+                  Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 }

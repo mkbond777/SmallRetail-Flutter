@@ -1,4 +1,7 @@
 import 'package:clima/model/bill_list.dart';
+import 'package:clima/model/bill_products_list.dart';
+import 'package:clima/screens/bill_detail_screen.dart';
+import 'package:clima/services/networking.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -45,6 +48,17 @@ class BodyLayout extends StatelessWidget {
           title: Text("Total : ${(bills[index]).totalAmount}       "
               "Pending : $remainingAmount"),
           subtitle: Text("$formatted"),
+          onTap: () async {
+            NetworkHelper networkHelper = NetworkHelper(
+                'https://smallretail.herokuapp.com/api/v1/billproduct');
+
+            BillProductList billProductList = new BillProductList.fromJson(
+                await networkHelper.getDataById(bills[index].id));
+
+            Navigator.push(context, MaterialPageRoute(builder: (context) {
+              return BillDetails(billProductList: billProductList);
+            }));
+          },
         );
       },
     );
