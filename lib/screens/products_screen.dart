@@ -1,4 +1,6 @@
 import 'package:clima/model/product_list.dart';
+import 'package:clima/model/unit_list.dart';
+import 'package:clima/services/networking.dart';
 import 'package:flutter/material.dart';
 
 class ProductsScreen extends StatefulWidget {
@@ -13,12 +15,46 @@ class ProductsScreen extends StatefulWidget {
 class _ProductsScreenState extends State<ProductsScreen> {
   TextEditingController editingController = TextEditingController();
 
-  var items = List<Product>();
+  List<DropdownMenuItem<Unit>> _dropdownMenuItems;
+  Unit _selectedUnit;
+
+  var products = List<Product>();
 
   @override
   void initState() {
-    items.addAll(widget.productsList.products);
+    getUnits();
+    products.addAll(widget.productsList.products);
     super.initState();
+  }
+
+  void getUnits() async {
+    _dropdownMenuItems = await buildDropdownMenuItems();
+    _selectedUnit = _dropdownMenuItems[0].value;
+  }
+
+  Future<List<DropdownMenuItem<Unit>>> buildDropdownMenuItems() async {
+    List<DropdownMenuItem<Unit>> items = List();
+
+    NetworkHelper networkHelper =
+        NetworkHelper('https://smallretail.herokuapp.com/api/v1/unit');
+
+    UnitList units = new UnitList.fromJson(await networkHelper.getData());
+
+    for (Unit unit in units.units) {
+      items.add(
+        DropdownMenuItem(
+          value: unit,
+          child: Text(unit.name),
+        ),
+      );
+    }
+    return items;
+  }
+
+  onChangeDropdownItem(Unit selectedUnit) {
+    setState(() {
+      _selectedUnit = selectedUnit;
+    });
   }
 
   void filterSearchResults(String query) {
@@ -33,14 +69,14 @@ class _ProductsScreenState extends State<ProductsScreen> {
         }
       });
       setState(() {
-        items.clear();
-        items.addAll(dummyListData);
+        products.clear();
+        products.addAll(dummyListData);
       });
       return;
     } else {
       setState(() {
-        items.clear();
-        items.addAll(widget.productsList.products);
+        products.clear();
+        products.addAll(widget.productsList.products);
       });
     }
   }
@@ -48,55 +84,75 @@ class _ProductsScreenState extends State<ProductsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: Text('Products')),
-        body: Container(
-          child: Column(
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: TextField(
-                  onChanged: (value) {
-                    filterSearchResults(value);
-                  },
-                  controller: editingController,
-                  decoration: InputDecoration(
-                      labelText: "Search",
-                      hintText: "Product Name",
-                      prefixIcon: Icon(Icons.search),
-                      border: OutlineInputBorder(
-                          borderRadius:
-                              BorderRadius.all(Radius.circular(25.0)))),
-                ),
-              ),
-              Expanded(
-                child: BodyLayout(
-                  products: items,
-                ),
-              )
-            ],
+      appBar: AppBar(title: Text('Products')),
+      body: Container(
+        child: Column(children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              onChanged: (value) {
+                filterSearchResults(value);
+              },
+              controller: editingController,
+              decoration: InputDecoration(
+                  labelText: "Search",
+                  hintText: "Product Name",
+                  prefixIcon: Icon(Icons.search),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(25.0)))),
+            ),
           ),
-        ));
-  }
-}
-
-class BodyLayout extends StatelessWidget {
-  BodyLayout({this.products});
-
-  final List<Product> products;
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView.builder(
-      itemCount: products.length,
-      itemBuilder: (context, index) {
-        return ExpansionTile(
-            title: Text("${(products[index]).name}"),
-            children: <Widget>[
-              Column(
-                children: <Widget>[Text("Unit"), Text("Quantity")],
-              )
-            ]);
-      },
+          Expanded(
+            child: ListView.builder(
+              itemCount: products.length,
+              itemBuilder: (context, index) {
+                return ExpansionTile(
+                    title: Text("${(products[index]).name}"),
+                    children: <Widget>[
+                      Column(
+                        children: <Widget>[
+                          DropdownButton(
+                            value: _selectedUnit,
+                            items: _dropdownMenuItems,
+                            onChanged: onChangeDropdownItem,
+                          ),
+                        ],
+                      )
+                    ]);
+              },
+            ),
+          )
+        ]),
+      ),
     );
   }
 }
+
+//class BodyLayout extends StatelessWidget {
+//  BodyLayout({this.products});
+//
+//  final List<Product> products;
+//
+//  @override
+//  Widget build(BuildContext context) {
+//    return ListView.builder(
+//      itemCount: products.length,
+//      itemBuilder: (context, index) {
+//        return ExpansionTile(
+//            title: Text("${(products[index]).name}"),
+//            children: <Widget>[
+//              Column(
+//                children: <Widget>[
+//                  DropdownButton(
+//                    value: _selectedUnit,
+//                    items: _dropdownMenuItems,
+//                    onChanged: onChangeDropdownItem,
+//                  ),
+//                  Text("Quantity")
+//                ],
+//              )
+//            ]);
+//      },
+//    );
+//  }
+//}
