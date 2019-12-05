@@ -33,12 +33,11 @@ class NetworkHelper {
     }
   }
 
-  Future postData(Map data) async {
+  Future postData(dynamic data) async {
     Map<String, String> headers = {"Content-type": "application/json"};
 
-    var body = json.encode(data);
-
-    http.Response response = await http.post(url, headers: headers, body: body);
+    http.Response response = await http.Client()
+        .post(url, headers: headers, body: json.encode(data));
 
     print(response.body);
 
